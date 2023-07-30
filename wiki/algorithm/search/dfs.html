@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+<head>
+  <meta name="generator" content="Hexo 6.3.0">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.19.0">
+  <meta charset="utf-8">
+  
+
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  <link rel='dns-prefetch' href='https://gcore.jsdelivr.net'>
+  <link rel="preconnect" href="https://gcore.jsdelivr.net" crossorigin>
+  <link rel='dns-prefetch' href='//unpkg.com'>
+
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>算法 in Java：DFS - Jingle</title>
+
+  
+    <meta name="description" content="DFS的剪枝优化 优化搜索顺序：选择搜索分支数量少的节点  排序，从大到小枚举   排除等效冗余：是否考虑顺序，不搜索重复的状态  可行性剪枝：如果发现不合法，则提前结束搜索  最优性剪枝：如果当前状态已经不是最优解，提前结束  记忆化（DP)   划分k个和相等的数组 lc698 从大到小枚举（排序），并且单向枚举（编号递增）。  如果  i  &#x3D;  i + 1 ，搜索 i 失败则 i">
+<meta property="og:type" content="website">
+<meta property="og:title" content="DFS">
+<meta property="og:url" content="https://jingleg.github.io/wiki/algorithm/search/dfs.html">
+<meta property="og:site_name" content="Jingle">
+<meta property="og:description" content="DFS的剪枝优化 优化搜索顺序：选择搜索分支数量少的节点  排序，从大到小枚举   排除等效冗余：是否考虑顺序，不搜索重复的状态  可行性剪枝：如果发现不合法，则提前结束搜索  最优性剪枝：如果当前状态已经不是最优解，提前结束  记忆化（DP)   划分k个和相等的数组 lc698 从大到小枚举（排序），并且单向枚举（编号递增）。  如果  i  &#x3D;  i + 1 ，搜索 i 失败则 i">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-07-29T19:43:54.398Z">
+<meta property="article:modified_time" content="2023-07-29T19:43:54.398Z">
+<meta property="article:author" content="Jingle">
+<meta name="twitter:card" content="summary">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+
+
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1rem" height="1rem" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/algorithm/index.html"><div class="main" ff="title">算法 in Java</div></a></div></widget>
+
+<widget class="widget-wrapper toc multi" id="data-toc"><div class="widget-header cap dis-select"><span class="name">写在开始</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/index.html#start"><span class="toc-text">写在开始</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/intro/javaAPI.html#default"><span class="toc-text">JavaAPI</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/intro/TimeComplexity.html#default"><span class="toc-text">数据范围反推算法</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/intro/IO.html#default"><span class="toc-text">处理输入输出</span></a></div></div><div class="widget-header cap dis-select"><span class="name">基础算法</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/basicAlgo/sort.html#default"><span class="toc-text">Sort</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/basicAlgo/binary_search.html#default"><span class="toc-text">Binary Search</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/basicAlgo/bit_operation.html#default"><span class="toc-text">Bit Operation</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/basicAlgo/rolling_hash.html#default"><span class="toc-text">Rolling Hash</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/basicAlgo/kmp.html#default"><span class="toc-text">KMP</span></a></div></div><div class="widget-header cap dis-select"><span class="name">数据结构</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/binary_tree.html#default"><span class="toc-text">Binary Tree</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/linked_list.html#default"><span class="toc-text">Linked List</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/stack.html#default"><span class="toc-text">Stack</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/queue.html#default"><span class="toc-text">Queue</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/heap.html#default"><span class="toc-text">Heap</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/trie.html#default"><span class="toc-text">Trie</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/union_find.html#default"><span class="toc-text">Union Find</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/hash_table.html#default"><span class="toc-text">Hash Table</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/presum.html#default"><span class="toc-text">Prefix Sum / Diff Array</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/binary_indexed_tree.html#default"><span class="toc-text">Binary Indexed Tree</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/segment_tree.html#default"><span class="toc-text">Segment Tree</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/splay.html#default"><span class="toc-text">Splay Tree</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/persistent_data_structure.html#default"><span class="toc-text">Persistent data structure</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/treap.html#default"><span class="toc-text">Treap</span></a></div></div><div class="widget-header cap dis-select"><span class="name">搜索</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/search/bfs.html#default"><span class="toc-text">BFS</span></a></div><a class="anchor" id="default"></a><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/algorithm/search/dfs.html#default"><span class="toc-text">DFS</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#DFS%E7%9A%84%E5%89%AA%E6%9E%9D%E4%BC%98%E5%8C%96"><span class="toc-text">DFS的剪枝优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%92%E5%88%86k%E4%B8%AA%E5%92%8C%E7%9B%B8%E7%AD%89%E7%9A%84%E6%95%B0%E7%BB%84-lc698"><span class="toc-text">划分k个和相等的数组 lc698</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E7%8B%AC%E4%BD%8D%E8%BF%90%E7%AE%97%E4%BC%98%E5%8C%96"><span class="toc-text">数独位运算优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%9B%8B%E7%B3%95%E5%A1%94%E9%97%AE%E9%A2%98"><span class="toc-text">蛋糕塔问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8C%E5%90%91DFS"><span class="toc-text">双向DFS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Iterative-Deepening-Search"><span class="toc-text">Iterative Deepening Search</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/search/a_start.html#default"><span class="toc-text">A*/IDA*</span></a></div></div><div class="widget-header cap dis-select"><span class="name">动态规划</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/intro.html#default"><span class="toc-text">Intro for DP</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/backpack.html#default"><span class="toc-text">背包 backpack</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/linear.html#default"><span class="toc-text">线性DP</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/interval.html#default"><span class="toc-text">区间DP</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/state_compression.html#default"><span class="toc-text">状态压缩DP</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/state_machine.html#default"><span class="toc-text">状态机DP</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/tree.html#default"><span class="toc-text">树形DP</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/digit.html#default"><span class="toc-text">数位DP</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/optimize.html#default"><span class="toc-text">DP优化</span></a></div></div><div class="widget-header cap dis-select"><span class="name">图论</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/graph/intro.html#default"><span class="toc-text">Intro</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/graph/shortest_path.html#default"><span class="toc-text">Shortest Path</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/graph/topo.html#default"><span class="toc-text">Topological Sorting</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/graph/spinning_tree.html#default"><span class="toc-text">Minimum Spanning Tree</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/graph/bipartite.html#default"><span class="toc-text">Bipartite graph</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/graph/euler.html#default"><span class="toc-text">Euler circuit/path</span></a></div></div><div class="widget-header cap dis-select"><span class="name">数学</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/gcd.html#default"><span class="toc-text">GCD/LCM</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/convert.html#default"><span class="toc-text">hexconvert 进制转换</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/prime.html#default"><span class="toc-text">Prime 质数</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/divisor.html#default"><span class="toc-text">Divisor 约数</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/binary_exponentiation.html#default"><span class="toc-text">Binary Exponentiation 快速幂</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/euler.html#default"><span class="toc-text">Euler 欧拉</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/random.html#default"><span class="toc-text">Random/Sample 随机抽样</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/bignum.html#default"><span class="toc-text">BigNum 高精度</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/combinatorics.html#default"><span class="toc-text">Combinatorics 组合数学</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/matrix.html#default"><span class="toc-text">Matrix 矩阵</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/pigeon.html#default"><span class="toc-text">pigeonhole principle 抽屉原理</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/gauss.html#default"><span class="toc-text">Gauss–Jordan elimination 高斯消元</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/game.html#default"><span class="toc-text">Game Theory 博弈论</span></a></div></div><div class="widget-header cap dis-select"><span class="name">几何</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/geometry/2d_basic.html#default"><span class="toc-text">2D Geometry</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/geometry/convexhull.html#default"><span class="toc-text">Convex Hull 凸包</span></a></div></div><div class="widget-header cap dis-select"><span class="name">杂项</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/unclassified/twopointer.html#default"><span class="toc-text">Two Pointer/Sliding Window</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/unclassified/calculator.html#default"><span class="toc-text">Calculator</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/unclassified/vote.html#default"><span class="toc-text">Moore 摩尔投票</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/unclassified/remove_duplicate.html#default"><span class="toc-text">排序数组去重</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/unclassified/bracket_seq.html#default"><span class="toc-text">Bracket Seq 括号序列</span></a></div></div></widget>
+
+<widget class="widget-wrapper recent"><div class="widget-header cap theme dis-select"><span class="name">最近更新</span></div><div class="widget-body related-posts fs14"><a class="item title" href="/wiki/back-end/index.html"><span class="title"><strong>后端</strong><span class="dot"></span>Intro</span></a><a class="item title" href="/wiki/paper/index.html"><span class="title"><strong>读paper</strong><span class="dot"></span>Intro</span></a><a class="item title" href="/wiki/env_setup/index.html"><span class="title"><strong>环境配置</strong><span class="dot"></span>Intro</span></a><a class="item title" href="/wiki/blog/index.html"><span class="title"><strong>blog</strong><span class="dot"></span>Intro</span></a><a class="item title" href="/wiki/front_end/index.html"><span class="title"><strong>前端</strong><span class="dot"></span>Intro</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+
+      
+
+  
+  
+    
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mermaid@v9/dist/mermaid.min.js"></script>
+
+  <script>
+    var mermaid_config = {
+      startOnLoad: true,
+      theme: 'default',
+      logLevel: 3,
+      themeVariables: {
+        darkMode: true
+      },
+      flowchart: {
+        useMaxWidth: false,
+        htmlLabels: true,
+        curve: 'linear'
+      },
+      gantt: {
+        axisFormat: '%m/%d/%Y'
+      },
+      sequence: {
+        actorMargin: 50
+      }
+    }
+    if (window.mermaid) {
+        mermaid.initialize(mermaid_config);
+    }
+  </script>
+
+
+  
+  
+    
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+          tex2jax: {
+            inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+            processEscapes: true
+          }
+        });
+      </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+            tex2jax: {
+              skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+          });
+      </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+              var all = MathJax.Hub.getAllJax(), i;
+              for(i=0; i < all.length; i += 1) {
+                  all[i].SourceElement().parentNode.className += ' has-jax';
+              }
+          });
+      </script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+  
+  
+<div class="bread-nav fs12"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/algorithm/index.html">算法 in Java</a></div><div id="post-meta">更新于&nbsp;<time datetime="2023-07-29T19:43:54.398Z">2023-07-29</time></div></div>
+
+  <article class='md-text content wiki'>
+  <h1 class="article-title" ><span>DFS</span></h1>
+  <h2 id="DFS的剪枝优化"><a href="#DFS的剪枝优化" class="headerlink" title="DFS的剪枝优化"></a>DFS的剪枝优化</h2><ul>
+<li><p>优化搜索顺序：选择搜索分支数量少的节点</p>
+<blockquote>
+<p>排序，从大到小枚举</p>
+</blockquote>
+</li>
+<li><p>排除等效冗余：是否考虑顺序，不搜索重复的状态</p>
+</li>
+<li><p>可行性剪枝：如果发现不合法，则提前结束搜索</p>
+</li>
+<li><p>最优性剪枝：如果当前状态已经不是最优解，提前结束</p>
+</li>
+<li><p>记忆化（DP)</p>
+</li>
+</ul>
+<h3 id="划分k个和相等的数组-lc698"><a href="#划分k个和相等的数组-lc698" class="headerlink" title="划分k个和相等的数组 lc698"></a>划分k个和相等的数组 lc698</h3><ul>
+<li><p>从大到小枚举（排序），并且单向枚举（编号递增）。</p>
+</li>
+<li><p>如果  i  &#x3D;  i + 1 ，搜索 i 失败则 i + 1 必然失败。</p>
+</li>
+<li><p>如果 i 为当前第一个元素搜索失败，则无解（如放在桶中的第一个元素）。</p>
+<ul>
+<li>如果 i 不位于后面某一组的第一个位置，则前面的一根 j 一定更长。则这种情况一定在之前搜索中已经搜索过了，必然无解，所以 i 必然位于第一个。</li>
+<li>如果 i 位于后面一组的第一个位置，则可以交换后一组到当前组，矛盾。</li>
+</ul>
+</li>
+<li><p>如果 i 为当前最后一个元素搜索失败，则同样无解。</p>
+<ul>
+<li>若 i  为最后一个数之后的搜索成功了，则说明存在若干小于 i  的元素放在当前组的末尾（总长与 i 相同），而 i 存在于另一组中，则可以使用 i 与其交换。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span>[] nums;</span><br><span class="line"><span class="type">boolean</span>[] st; <span class="comment">//visit</span></span><br><span class="line"><span class="type">int</span> size,len,k; <span class="comment">// targetLength, nums.length, k个分段</span></span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> n:nums) sum+=n;</span><br><span class="line"><span class="keyword">if</span>(sum%k!=<span class="number">0</span>) <span class="keyword">return</span> <span class="literal">false</span>; <span class="comment">//如果不能整除返回false</span></span><br><span class="line">size=sum/k;</span><br><span class="line">Arrays.sort(nums); <span class="comment">// 优化1： 从大到小枚举（sort递增，反向枚举idx）</span></span><br><span class="line"><span class="keyword">return</span> dfs(len-<span class="number">1</span>,<span class="number">0</span>,<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"><span class="type">boolean</span> <span class="title function_">dfs</span><span class="params">(<span class="type">int</span> start, <span class="type">int</span> cur, <span class="type">int</span> cnt)</span>&#123;<span class="comment">//起始位置，当前长度，第几根</span></span><br><span class="line">    <span class="keyword">if</span> (cnt == k) <span class="keyword">return</span> <span class="literal">true</span>; <span class="comment">// 不需要递归最后一个，剩余的必然满足</span></span><br><span class="line">    <span class="keyword">if</span> (cur == size) <span class="comment">// 当前子数组满足要求，递归下一个</span></span><br><span class="line">        <span class="keyword">return</span> dfs(len - <span class="number">1</span>, <span class="number">0</span>, cnt + <span class="number">1</span>); </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> start; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">        <span class="keyword">if</span> (nums[i] &gt; size) </span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;	<span class="comment">//当前第i个比总长size还大，无解，return</span></span><br><span class="line">        <span class="keyword">if</span> (st[i] || nums[i] + cur &gt; size) </span><br><span class="line">            <span class="keyword">continue</span>; 		<span class="comment">//已经用过或当前剩余大小不足，枚举下一个</span></span><br><span class="line">        </span><br><span class="line">        st[i] = <span class="literal">true</span>; 	<span class="comment">// backtrack模板,按需记录路径</span></span><br><span class="line">        <span class="keyword">if</span> (dfs(i - <span class="number">1</span>, cur + nums[i], cnt)) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        st[i] = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (cur == <span class="number">0</span> || cur + nums[i] == size) </span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;<span class="comment">//优化3,4: 如果当前是第一个或最后一个，无解</span></span><br><span class="line">        <span class="keyword">while</span> (i &gt; <span class="number">1</span> &amp;&amp; nums[i] == nums[i - <span class="number">1</span>]) </span><br><span class="line">            i--;<span class="comment">//优化2: 跳过所有相同的</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="数独位运算优化"><a href="#数独位运算优化" class="headerlink" title="数独位运算优化"></a>数独位运算优化</h3><p>输入输出：每个测试用例占一行，包含 81 个字符，由上到下，同行由左到右</p>
+<ul>
+<li>从当前能填合法数字最少的位置开始填数字</li>
+<li>任意一个状态下, 只需要找一个位置填数即可, 而不是找所有的位置填数(结果相同)</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="variable">N</span> <span class="operator">=</span> <span class="number">1</span> &lt;&lt; <span class="number">9</span>;</span><br><span class="line"><span class="type">int</span>[] bitcnt = <span class="keyword">new</span> <span class="title class_">int</span>[N]; <span class="comment">// 存当前状态下有多少个1(可填数字)</span></span><br><span class="line"><span class="type">int</span>[] bitcheck = <span class="keyword">new</span> <span class="title class_">int</span>[N];<span class="comment">// 存当前状态(仅一个1)对应的可填数字</span></span><br><span class="line"><span class="type">int</span>[] r;	<span class="comment">// 行状态 =&gt; 还能够选哪些数(1)</span></span><br><span class="line"><span class="type">int</span>[] c;	<span class="comment">// 列状态</span></span><br><span class="line"><span class="type">int</span>[][] g;	<span class="comment">// 方格状态</span></span><br><span class="line"><span class="type">char</span>[] str;	<span class="comment">// 当前状态</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">solve</span><span class="params">(String s)</span> &#123;</span><br><span class="line">    <span class="comment">// 初始化bitcnt</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; N; i++) &#123;	</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> i; j &gt; <span class="number">0</span>; j -= lowbit(j)) &#123;</span><br><span class="line">            bitcnt[i] += <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 初始化bitcheck</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">9</span>; i++) bitcheck[<span class="number">1</span> &lt;&lt; i] = i;</span><br><span class="line">    </span><br><span class="line">    str = s.toCharArray();</span><br><span class="line">    r = <span class="keyword">new</span> <span class="title class_">int</span>[<span class="number">9</span>];</span><br><span class="line">    c = <span class="keyword">new</span> <span class="title class_">int</span>[<span class="number">9</span>];</span><br><span class="line">    g = <span class="keyword">new</span> <span class="title class_">int</span>[<span class="number">3</span>][<span class="number">3</span>];</span><br><span class="line">    <span class="type">int</span> <span class="variable">cnt</span> <span class="operator">=</span> <span class="number">0</span>;	<span class="comment">//待填数的位置</span></span><br><span class="line">    <span class="comment">// 初始化所有 行 列 方格, 状态为 ‘1 1111 1111’ 即全部可选</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">9</span>; i++) &#123;</span><br><span class="line">        r[i] = c[i] = g[i / <span class="number">3</span>][i % <span class="number">3</span>] = N - <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">// 遍历起始状态，填数</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">9</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; <span class="number">9</span>; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (str[pos(i, j)] == <span class="string">&#x27;.&#x27;</span>) cnt++;</span><br><span class="line">            <span class="keyword">else</span> add(i, j, str[pos(i, j)] - <span class="string">&#x27;1&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    dfs(cnt);</span><br><span class="line">    System.out.println(<span class="keyword">new</span> <span class="title class_">String</span>(str));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">boolean</span> <span class="title function_">dfs</span><span class="params">(<span class="type">int</span> cnt)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (cnt == <span class="number">0</span>) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    <span class="comment">// 枚举所有空位,找到可选数字最少的位置[x,y]</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">min</span> <span class="operator">=</span> <span class="number">10</span>;	</span><br><span class="line">    <span class="type">int</span> <span class="variable">x</span> <span class="operator">=</span> -<span class="number">1</span>, y = -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">9</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; <span class="number">9</span>; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (str[getPos(i, j)] == <span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">                <span class="type">int</span> <span class="variable">st</span> <span class="operator">=</span> getNum(i, j);</span><br><span class="line">                <span class="keyword">if</span> (bitcnt[st] &lt; min) &#123;</span><br><span class="line">                    x = i;</span><br><span class="line">                    y = j;</span><br><span class="line">                    min = bitcnt[st];</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">// 枚举所有[x,y]可填的数字num, 使用lowbit配合bitcheck快速判断</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> getNum(x, y); i &gt; <span class="number">0</span>; i -= lowbit(i)) &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">num</span> <span class="operator">=</span> bitcheck[lowbit(i)];</span><br><span class="line">        add(x, y, num);</span><br><span class="line">        <span class="keyword">if</span> (dfs(cnt - <span class="number">1</span>)) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        remove(x, y, num);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在位置[x,y]填上num, num取0-8</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">add</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y, <span class="type">int</span> num)</span> &#123;</span><br><span class="line">    str[getPos(x, y)] = (<span class="type">char</span>) (<span class="string">&#x27;1&#x27;</span> + num);</span><br><span class="line">    <span class="comment">// 将对应的行列中可选数字消去</span></span><br><span class="line">    r[x] -= <span class="number">1</span> &lt;&lt; num;</span><br><span class="line">    c[y] -= <span class="number">1</span> &lt;&lt; num;</span><br><span class="line">    g[x / <span class="number">3</span>][y / <span class="number">3</span>] -= <span class="number">1</span> &lt;&lt; num;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在位置[x,y] 撤销选择</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">remove</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y, <span class="type">int</span> num)</span> &#123;</span><br><span class="line">    str[getPos(x, y)] = <span class="string">&#x27;.&#x27;</span>;</span><br><span class="line">    r[x] += <span class="number">1</span> &lt;&lt; num;</span><br><span class="line">    c[y] += <span class="number">1</span> &lt;&lt; num;</span><br><span class="line">    g[x / <span class="number">3</span>][y / <span class="number">3</span>] += <span class="number">1</span> &lt;&lt; num;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获得位置[x,y]能够填的数字有哪些, &amp;后为1则为可选</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">getNum</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> r[x] &amp; c[y] &amp; g[x / <span class="number">3</span>][y / <span class="number">3</span>];</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 获得位置[x,y]对应st字符的位置</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">getPos</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> x * <span class="number">9</span> + y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="蛋糕塔问题"><a href="#蛋糕塔问题" class="headerlink" title="蛋糕塔问题"></a>蛋糕塔问题</h3><p>使 体积为N，层数为M 的蛋糕塔的表面积最小</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// todo</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="双向DFS"><a href="#双向DFS" class="headerlink" title="双向DFS"></a>双向DFS</h2><p>同样将问题分为两半进行搜索，将其中一半的数据进行缓存，在另一半中查表缩小搜索空间。</p>
+<p><strong>子集和问题</strong>：给定n个正数，从中选则若干个，使其和 不超过w 的 最大和。（n&lt;45, a[i], w &lt; 2^32-1 )</p>
+<p>对于该问题，本质为体积为n的0-1背包问题，但由于体积过大无法枚举，考虑直接枚举物品 选与不选。</p>
+<p>由于2^45 依然过大，改为折半搜索，即将数组分为两半，分别枚举前 n&#x2F;2 个数可能构成的和，再枚举 后n&#x2F;2 个数可能构成的和，对前半部分进行查表 更新最大值。空间换时间</p>
+<ul>
+<li>搜索顺序：将数组降序排序，先搜索大的部分，将其存入set中</li>
+<li>选取划分点：后半部分需要二分查找，每次需要额外$\mathcal{O}(\log 2^{\frac{n}{2}})&#x3D;\mathcal{O}(n)$的时间，而前半部分仅需要$2^ {\frac{n}{2}}$，即增加前半部分数量平衡时间</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">TreeSet&lt;Long&gt; set = <span class="keyword">new</span> <span class="title class_">TreeSet</span>&lt;&gt;();</span><br><span class="line"><span class="type">long</span> <span class="variable">res</span> <span class="operator">=</span> <span class="number">0</span>, w;</span><br><span class="line"><span class="type">long</span>[] nums;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">solve</span><span class="params">()</span> &#123;</span><br><span class="line">    w = scan.nextInt();</span><br><span class="line">    <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> scan.nextInt();</span><br><span class="line">    nums = <span class="keyword">new</span> <span class="title class_">long</span>[n];</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; n; i++) nums[i] = scan.nextInt();</span><br><span class="line">    Arrays.sort(nums);		<span class="comment">// 从大到小枚举</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>, j = n - <span class="number">1</span>; i &lt; j; i++, j--) &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">t</span> <span class="operator">=</span> nums[i];</span><br><span class="line">        nums[i] = nums[j];</span><br><span class="line">        nums[j] = t;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> k=Math.min(n-<span class="number">1</span>,n/<span class="number">2</span>+<span class="number">2</span>); <span class="comment">// 偏移搜索终点</span></span><br><span class="line">    dfs1(<span class="number">0</span>, k, <span class="number">0</span>);</span><br><span class="line">    dfs2(k, n, <span class="number">0</span>);</span><br><span class="line">    System.out.println(res);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">dfs1</span><span class="params">(<span class="type">int</span> n, <span class="type">int</span> end, <span class="type">long</span> sum)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (n == end) &#123;</span><br><span class="line">        set.add(sum);	<span class="comment">// 枚举前半部分，将所有合法值放入TreeSet</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    dfs1(n + <span class="number">1</span>, end, sum);</span><br><span class="line">    <span class="keyword">if</span> (nums[n] + sum &lt;= w) &#123;	<span class="comment">// 可行性剪枝，超过最大值直接返回</span></span><br><span class="line">        dfs1(n + <span class="number">1</span>, end, sum + nums[n]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">dfs2</span><span class="params">(<span class="type">int</span> n, <span class="type">int</span> end, <span class="type">long</span> sum)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (n == end) &#123;	<span class="comment">// 后半部，二分搜索取前半部分最大值，加和更新答案</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">l</span> <span class="operator">=</span> set.floor(w - sum);</span><br><span class="line">        res = Math.max(res, l + sum);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    dfs2(n + <span class="number">1</span>, end, sum);</span><br><span class="line">    <span class="keyword">if</span> (sum + nums[n] &lt;= w) &#123;</span><br><span class="line">        dfs2(n + <span class="number">1</span>, end, sum + nums[n]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Iterative-Deepening-Search"><a href="#Iterative-Deepening-Search" class="headerlink" title="Iterative Deepening Search"></a>Iterative Deepening Search</h2><p>迭代加深：针对 搜索深度深且每层选择很多，但答案深度浅 的问题</p>
+<p>每次搜索设置最大深度，超过深度立即返回。虽然在搜索深度为d的过程中会重复搜索d-1的部分，但远小于 深度过大的指数级增长。如果使用bfs，队列大小指数增长，mle。</p>
+<p><strong>加成序列</strong>: 给定一个整数 n，找出长度为 m 最小的递增序列满足：第一个元素为1，最后一个元素为n，且对于 任意下标 k，存在 <code>0&lt;= i &lt;= j &lt; k </code>使得 <code>a[k] = a[i] + a[j]</code>。<code>n = 15, 1 2 4 5 10 15</code></p>
+<p>对该问题，可以估算答案为log级别(考虑1,2,4,8,…)，即答案处于搜索树的浅层。使用迭代加深枚举深度搜索。</p>
+<ul>
+<li>优化搜索顺序：每次枚举下一个数字时，从大到小枚举，即枚举<code>a[i]+a[j]</code>最大的可能值</li>
+<li>排除等效冗余：在枚举 i 和 j 时，当<code>a[i]+a[j]</code>值相等时，搜索结果相同，使用st数组判重</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">boolean</span> <span class="title function_">dfs</span><span class="params">(<span class="type">int</span> u, <span class="type">int</span> n, <span class="type">int</span> max, <span class="type">int</span>[] path)</span> &#123;<span class="comment">//u当前层数,max限制</span></span><br><span class="line">    <span class="keyword">if</span> (u == max) <span class="keyword">return</span> path[u - <span class="number">1</span>] == n;	<span class="comment">//已经搜到当前限制层数</span></span><br><span class="line">    <span class="type">boolean</span>[] st = <span class="keyword">new</span> <span class="title class_">boolean</span>[N];	<span class="comment">//枚举下一个数字的判重数组</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> u - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> i; j &gt;= <span class="number">0</span>; j--) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">sum</span> <span class="operator">=</span> path[i] + path[j]; <span class="comment">//反向枚举最大值</span></span><br><span class="line">            <span class="keyword">if</span> (sum &gt; n || sum &lt;= path[u - <span class="number">1</span>] || st[sum]) </span><br><span class="line">                <span class="keyword">continue</span>;	<span class="comment">// 当前值合法且未被枚举过</span></span><br><span class="line">            st[sum] = <span class="literal">true</span>;</span><br><span class="line">            path[u] = sum;</span><br><span class="line">            <span class="keyword">if</span> (dfs(u + <span class="number">1</span>, n, max, path)) <span class="keyword">return</span> <span class="literal">true</span>;	<span class="comment">// 递归</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">solve</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">while</span> (scan.hasNext()) &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> scan.nextInt();</span><br><span class="line">        <span class="keyword">if</span> (n == <span class="number">0</span>) <span class="keyword">break</span>;</span><br><span class="line">        <span class="type">int</span>[] path = <span class="keyword">new</span> <span class="title class_">int</span>[N];</span><br><span class="line">        path[<span class="number">0</span>] = <span class="number">1</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">u</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">while</span> (!dfs(<span class="number">1</span>, n, u, path)) u++;	<span class="comment">//枚举最大深度</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; u; i++) &#123;</span><br><span class="line">            System.out.print(path[i] + <span class="string">&quot; &quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.print(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+  
+  
+
+
+  </article>
+  
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/algorithm/search/bfs.html">BFS</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/algorithm/search/a_start.html">A*/IDA*</a></div></section></div>
+
+  
+
+  <div class='related-wrap md-text reveal' id="comments">
+    <section class='header cmt-title cap theme'>
+      快来参与讨论吧
+    </section>
+    <section class='body cmt-body giscus'>
+      
+
+<svg class="loading" style="vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2709"><path d="M832 512c0-176-144-320-320-320V128c211.2 0 384 172.8 384 384h-64zM192 512c0 176 144 320 320 320v64C300.8 896 128 723.2 128 512h64z" p-id="2710"></path></svg>
+
+<div id="giscus" data-repo="JingleG/blog-comments" data-repo-id="R_kgDOJ_S-YA" data-category="Announcements" data-category-id="DIC_kwDOJ_S-YM4CYGuh" data-mapping="pathname" data-strict="0" data-reactions-enabled="0" data-emit-metadata="0" data-input-position="top" data-theme="preferred_color_scheme" data-lang="zh-CN" data-loading="lazy" crossorigin="anonymous"></div>
+
+    </section>
+  </div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">项目</span><a href="/wiki/">发现</a></div><div class="sitemap-group"><span class="fs14">社交</span><a href="/talk/">留言板</a></div><div class="sitemap-group"><span class="fs14">更多</span><a href="/about/">关于本站</a><a target="_blank" rel="noopener" href="https://github.com">GitHub</a></div></div><div class="text"><p>Powered by <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> &amp; <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar">Stellar</a> &amp; <a target="_blank" rel="noopener" href="https://giscus.app/">giscus</a> &amp; <a target="_blank" rel="noopener" href="https://github.com/">GitHub</a></p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    <script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.19.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.19.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@8.4.5/swiper-bundle.min.css","js":"https://unpkg.com/swiper@8.4.5/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".swiper-slide img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+  <script>
+  function loadJS() {
+    const els = document.querySelectorAll("#comments #giscus");
+    if (els.length === 0) return;
+    els.forEach((el, i) => {
+      try {
+        el.innerHTML = '';
+      } catch (error) {
+        console.log(error);
+      }
+      var script = document.createElement('script');
+      script.src = 'https://giscus.app/client.js';
+      script.async = true;
+      for (let key of Object.keys(el.attributes)) {
+        let attr = el.attributes[key];
+        if (['class', 'id'].includes(attr.name) === false) {
+          script.setAttribute(attr.name, attr.value);
+        }
+      }
+      el.appendChild(script);
+    });
+  }
+  window.addEventListener('DOMContentLoaded', (event) => {
+    loadJS();
+  });
+</script>
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>

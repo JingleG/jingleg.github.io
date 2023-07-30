@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+
+<head>
+  <meta name="generator" content="Hexo 6.3.0">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.19.0">
+  <meta charset="utf-8">
+  
+
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  <link rel='dns-prefetch' href='https://gcore.jsdelivr.net'>
+  <link rel="preconnect" href="https://gcore.jsdelivr.net" crossorigin>
+  <link rel='dns-prefetch' href='//unpkg.com'>
+
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" content="#f8f8f8">
+  
+  <title>算法 in Java：树形DP - Jingle</title>
+
+  
+    <meta name="description" content="树的最长路径：树中包含 n 个结点，每条边都有一个权值，找到树中的一条最长路径。 枚举路径的 中间节点，对于每个节点，经过该节点的路径分为  以其 子树中的某个节点 作为 起点，以他作为 终点 的 路径 以其 子树中的某个节点 作为 起点，以 子树中的某个节点 作为 终点 的 路径 以其 子树中的某个节点 作为 起点，以 非其子树的节点 作为 终点 的 路径  对于第 1 种情况，直接递归处理其子">
+<meta property="og:type" content="website">
+<meta property="og:title" content="树形DP">
+<meta property="og:url" content="https://jingleg.github.io/wiki/algorithm/dynamicProgramming/tree.html">
+<meta property="og:site_name" content="Jingle">
+<meta property="og:description" content="树的最长路径：树中包含 n 个结点，每条边都有一个权值，找到树中的一条最长路径。 枚举路径的 中间节点，对于每个节点，经过该节点的路径分为  以其 子树中的某个节点 作为 起点，以他作为 终点 的 路径 以其 子树中的某个节点 作为 起点，以 子树中的某个节点 作为 终点 的 路径 以其 子树中的某个节点 作为 起点，以 非其子树的节点 作为 终点 的 路径  对于第 1 种情况，直接递归处理其子">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-07-29T20:31:20.949Z">
+<meta property="article:modified_time" content="2023-07-29T20:31:20.949Z">
+<meta property="article:author" content="Jingle">
+<meta name="twitter:card" content="summary">
+  
+  
+  
+  
+
+  <!-- feed -->
+  
+
+  
+    
+<link rel="stylesheet" href="/css/main.css">
+
+  
+
+  
+
+  
+
+  
+
+
+  
+</head>
+
+<body>
+  
+
+
+
+
+  <div class='l_body' id='start'>
+    <aside class='l_left' layout='wiki'>
+    
+
+  
+
+
+
+
+<div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1rem" height="1rem" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/algorithm/index.html"><div class="main" ff="title">算法 in Java</div></a></div></widget>
+
+<widget class="widget-wrapper toc multi" id="data-toc"><div class="widget-header cap dis-select"><span class="name">写在开始</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/index.html#start"><span class="toc-text">写在开始</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/intro/javaAPI.html#default"><span class="toc-text">JavaAPI</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/intro/TimeComplexity.html#default"><span class="toc-text">数据范围反推算法</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/intro/IO.html#default"><span class="toc-text">处理输入输出</span></a></div></div><div class="widget-header cap dis-select"><span class="name">基础算法</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/basicAlgo/sort.html#default"><span class="toc-text">Sort</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/basicAlgo/binary_search.html#default"><span class="toc-text">Binary Search</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/basicAlgo/bit_operation.html#default"><span class="toc-text">Bit Operation</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/basicAlgo/rolling_hash.html#default"><span class="toc-text">Rolling Hash</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/basicAlgo/kmp.html#default"><span class="toc-text">KMP</span></a></div></div><div class="widget-header cap dis-select"><span class="name">数据结构</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/binary_tree.html#default"><span class="toc-text">Binary Tree</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/linked_list.html#default"><span class="toc-text">Linked List</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/stack.html#default"><span class="toc-text">Stack</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/queue.html#default"><span class="toc-text">Queue</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/heap.html#default"><span class="toc-text">Heap</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/trie.html#default"><span class="toc-text">Trie</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/union_find.html#default"><span class="toc-text">Union Find</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/hash_table.html#default"><span class="toc-text">Hash Table</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/presum.html#default"><span class="toc-text">Prefix Sum / Diff Array</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/binary_indexed_tree.html#default"><span class="toc-text">Binary Indexed Tree</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/segment_tree.html#default"><span class="toc-text">Segment Tree</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/splay.html#default"><span class="toc-text">Splay Tree</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/persistent_data_structure.html#default"><span class="toc-text">Persistent data structure</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dataStructure/treap.html#default"><span class="toc-text">Treap</span></a></div></div><div class="widget-header cap dis-select"><span class="name">搜索</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/search/bfs.html#default"><span class="toc-text">BFS</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/search/dfs.html#default"><span class="toc-text">DFS</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/search/a_start.html#default"><span class="toc-text">A*/IDA*</span></a></div></div><div class="widget-header cap dis-select"><span class="name">动态规划</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/intro.html#default"><span class="toc-text">Intro for DP</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/backpack.html#default"><span class="toc-text">背包 backpack</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/linear.html#default"><span class="toc-text">线性DP</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/interval.html#default"><span class="toc-text">区间DP</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/state_compression.html#default"><span class="toc-text">状态压缩DP</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/state_machine.html#default"><span class="toc-text">状态机DP</span></a></div><a class="anchor" id="default"></a><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/algorithm/dynamicProgramming/tree.html#default"><span class="toc-text">树形DP</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/digit.html#default"><span class="toc-text">数位DP</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/dynamicProgramming/optimize.html#default"><span class="toc-text">DP优化</span></a></div></div><div class="widget-header cap dis-select"><span class="name">图论</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/graph/intro.html#default"><span class="toc-text">Intro</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/graph/shortest_path.html#default"><span class="toc-text">Shortest Path</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/graph/topo.html#default"><span class="toc-text">Topological Sorting</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/graph/spinning_tree.html#default"><span class="toc-text">Minimum Spanning Tree</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/graph/bipartite.html#default"><span class="toc-text">Bipartite graph</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/graph/euler.html#default"><span class="toc-text">Euler circuit/path</span></a></div></div><div class="widget-header cap dis-select"><span class="name">数学</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/gcd.html#default"><span class="toc-text">GCD/LCM</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/convert.html#default"><span class="toc-text">hexconvert 进制转换</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/prime.html#default"><span class="toc-text">Prime 质数</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/divisor.html#default"><span class="toc-text">Divisor 约数</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/binary_exponentiation.html#default"><span class="toc-text">Binary Exponentiation 快速幂</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/euler.html#default"><span class="toc-text">Euler 欧拉</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/random.html#default"><span class="toc-text">Random/Sample 随机抽样</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/bignum.html#default"><span class="toc-text">BigNum 高精度</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/combinatorics.html#default"><span class="toc-text">Combinatorics 组合数学</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/matrix.html#default"><span class="toc-text">Matrix 矩阵</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/pigeon.html#default"><span class="toc-text">pigeonhole principle 抽屉原理</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/gauss.html#default"><span class="toc-text">Gauss–Jordan elimination 高斯消元</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/math/game.html#default"><span class="toc-text">Game Theory 博弈论</span></a></div></div><div class="widget-header cap dis-select"><span class="name">几何</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/geometry/2d_basic.html#default"><span class="toc-text">2D Geometry</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/geometry/convexhull.html#default"><span class="toc-text">Convex Hull 凸包</span></a></div></div><div class="widget-header cap dis-select"><span class="name">杂项</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/unclassified/twopointer.html#default"><span class="toc-text">Two Pointer/Sliding Window</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/unclassified/calculator.html#default"><span class="toc-text">Calculator</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/unclassified/vote.html#default"><span class="toc-text">Moore 摩尔投票</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/unclassified/remove_duplicate.html#default"><span class="toc-text">排序数组去重</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/algorithm/unclassified/bracket_seq.html#default"><span class="toc-text">Bracket Seq 括号序列</span></a></div></div></widget>
+
+<widget class="widget-wrapper recent"><div class="widget-header cap theme dis-select"><span class="name">最近更新</span></div><div class="widget-body related-posts fs14"><a class="item title" href="/wiki/back-end/index.html"><span class="title"><strong>后端</strong><span class="dot"></span>Intro</span></a><a class="item title" href="/wiki/paper/index.html"><span class="title"><strong>读paper</strong><span class="dot"></span>Intro</span></a><a class="item title" href="/wiki/env_setup/index.html"><span class="title"><strong>环境配置</strong><span class="dot"></span>Intro</span></a><a class="item title" href="/wiki/blog/index.html"><span class="title"><strong>blog</strong><span class="dot"></span>Intro</span></a><a class="item title" href="/wiki/front_end/index.html"><span class="title"><strong>前端</strong><span class="dot"></span>Intro</span></a></div></widget>
+</div>
+
+
+    </aside>
+    <div class='l_main'>
+      
+
+      
+
+  
+  
+    
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mermaid@v9/dist/mermaid.min.js"></script>
+
+  <script>
+    var mermaid_config = {
+      startOnLoad: true,
+      theme: 'default',
+      logLevel: 3,
+      themeVariables: {
+        darkMode: true
+      },
+      flowchart: {
+        useMaxWidth: false,
+        htmlLabels: true,
+        curve: 'linear'
+      },
+      gantt: {
+        axisFormat: '%m/%d/%Y'
+      },
+      sequence: {
+        actorMargin: 50
+      }
+    }
+    if (window.mermaid) {
+        mermaid.initialize(mermaid_config);
+    }
+  </script>
+
+
+  
+  
+    
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+          tex2jax: {
+            inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+            processEscapes: true
+          }
+        });
+      </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+            tex2jax: {
+              skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+          });
+      </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+              var all = MathJax.Hub.getAllJax(), i;
+              for(i=0; i < all.length; i += 1) {
+                  all[i].SourceElement().parentNode.className += ' has-jax';
+              }
+          });
+      </script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+
+  
+  
+<div class="bread-nav fs12"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/algorithm/index.html">算法 in Java</a></div><div id="post-meta">更新于&nbsp;<time datetime="2023-07-29T20:31:20.949Z">2023-07-29</time></div></div>
+
+  <article class='md-text content wiki'>
+  <h1 class="article-title" ><span>树形DP</span></h1>
+  <p><strong>树的最长路径</strong>：树中包含 n 个结点，每条边都有一个权值，找到树中的一条最长路径。</p>
+<p>枚举路径的 中间节点，对于每个节点，经过该节点的路径分为</p>
+<ul>
+<li>以其 子树中的某个节点 作为 起点，以他作为 终点 的 路径</li>
+<li>以其 子树中的某个节点 作为 起点，以 子树中的某个节点 作为 终点 的 路径</li>
+<li>以其 子树中的某个节点 作为 起点，以 非其子树的节点 作为 终点 的 路径</li>
+</ul>
+<p>对于第 1 种情况，直接递归处理其子树，找出到当前子树根节点最长的路径长度即可</p>
+<p>对于第 2 种情况，在处理第 1 种情况时，顺便找出 1 类路径的 次长路径，拼接成为答案</p>
+<p>对于第 3 种情况，我们可以把它归类为其 祖先节点 的第 1,2 种情况</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span>&#123;</span><br><span class="line">    <span class="comment">//根节点是1，父节点是-1</span></span><br><span class="line">    dfs(<span class="number">1</span>,-<span class="number">1</span>);</span><br><span class="line">    System.out.println(ans);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">dfs</span><span class="params">(<span class="type">int</span> u,<span class="type">int</span> father)</span>&#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">dist</span> <span class="operator">=</span> <span class="number">0</span>; <span class="comment">//表示起点为当前点，终点在子树中的最长bian</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">d1</span> <span class="operator">=</span> <span class="number">0</span>,d2 = <span class="number">0</span>; <span class="comment">//d1表示最长的边  d2 表示次长的边</span></span><br><span class="line">    <span class="comment">//遍历所有子节点</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> h[u];i != -<span class="number">1</span>; i = ne[i])&#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> e[i];</span><br><span class="line">        <span class="keyword">if</span> (j == father) <span class="keyword">continue</span>;  <span class="comment">// 仅枚举子节点</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">d</span> <span class="operator">=</span> dfs(j,u) + w[i]; </span><br><span class="line">        dist = Math.max(dist,d);  </span><br><span class="line">        <span class="keyword">if</span> (d &gt;= d1)&#123;  </span><br><span class="line">            d2 = d1;</span><br><span class="line">            d1 = d;</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span> (d &gt; d2) d2 = d;</span><br><span class="line">    &#125;</span><br><span class="line">    ans = Math.max(ans,d1 + d2); </span><br><span class="line">    <span class="keyword">return</span> dist;   </span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>树的中心（换根DP）</strong>：树中包含 n 个结点，每条边有一个权值，找到一个点，使得该点到树中其他点的最远距离最小</p>
+<ol>
+<li>指定任意一个根节点</li>
+<li>一次dfs遍历，统计出当前子树内的节点对当前节点的贡献</li>
+<li>一次dfs遍历，统计出当前节点的父节点对当前节点的贡献，然后合并统计答案</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//记录往下走的最长和次长，以及向上走的路径</span></span><br><span class="line"><span class="type">int</span>[] d1 = <span class="keyword">new</span> <span class="title class_">int</span>[N],d2 = <span class="keyword">new</span> <span class="title class_">int</span>[N],up = <span class="keyword">new</span> <span class="title class_">int</span>[N];</span><br><span class="line"><span class="comment">//记录向下走的最长和次长路径转移路径</span></span><br><span class="line"><span class="type">int</span>[] p1 = <span class="keyword">new</span> <span class="title class_">int</span>[N],p2 = <span class="keyword">new</span> <span class="title class_">int</span>[N];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 点u向下走的最大距离</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">dfs_down</span><span class="params">(<span class="type">int</span> u,<span class="type">int</span> father)</span>&#123;</span><br><span class="line">    d1[u] = d2[u] = -INF;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> h[u] ; i != -<span class="number">1</span> ; i = ne[i])&#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> e[i];</span><br><span class="line">        <span class="keyword">if</span> (j == father) <span class="keyword">continue</span>;</span><br><span class="line">        <span class="type">int</span> <span class="variable">d</span> <span class="operator">=</span> dfs_down(j,u) + w[i];</span><br><span class="line">        <span class="keyword">if</span> (d &gt; d1[u])&#123;</span><br><span class="line">            d2[u] = d1[u];d1[u] = d;</span><br><span class="line">            p1[u] = j;  <span class="comment">//存一下最长路径过来的编号</span></span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span> (d &gt; d2[u])&#123;</span><br><span class="line">            d2[u] = d;</span><br><span class="line">            p2[u] = j;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (d1[u] == -INF) d1[u] = d2[u] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> d1[u];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 点u的所有子节点j向上走的最大距离</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">dfs_up</span><span class="params">(<span class="type">int</span> u,<span class="type">int</span> father)</span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> h[u] ; i != -<span class="number">1</span> ; i = ne[i])&#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> e[i];</span><br><span class="line">        <span class="keyword">if</span> (j == father) <span class="keyword">continue</span>;</span><br><span class="line">        <span class="comment">//当前点u的向下的最大路径经过j，则用次大值更新j向上走的距离</span></span><br><span class="line">        <span class="keyword">if</span> (p1[u] == j) up[j] = Math.max(d2[u],up[u]) + w[i];</span><br><span class="line">        <span class="keyword">else</span> up[j] = Math.max(d1[u],up[u]) + w[i];</span><br><span class="line">        dfs_up (j,u);<span class="comment">//递归更新所有点往上面走的最长路径</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>树形+状态机</strong></p>
+<p>给定一棵包含 n个结点的 树，以及 树 上的 n−1条边，需要在这 n个结点中，选择一定数量的结点放上 哨兵，最终要求，树中任意 n−1条边的左右两端，至少有一个结点上放置了 哨兵，求满足的最少哨兵数量</p>
+<pre class="mermaid">stateDiagram-v2
+   direction LR
+   0:无哨兵0
+   1:有哨兵1
+   0-->1:f[j,0]
+   1-->0:f[j,1]
+   1-->1:f[j,1]</pre>
+
+<p>如果当前结点放置了哨兵(1)，则该子树中，连向他的边的另一端，可以放置(1)，也可以不放置(0)<br>如果当前结点没有放哨兵(0)，则该子树中，连向他的边的另一端，必须可以放置(1)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">dfs</span><span class="params">(<span class="type">int</span> u)</span>&#123;</span><br><span class="line">    f[u][<span class="number">0</span>] = <span class="number">0</span>, f[u][<span class="number">1</span>] = <span class="number">1</span>;  <span class="comment">//initialize</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> h[u]; ~i; i = ne[i])&#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> e[i];</span><br><span class="line">        dfs(j);</span><br><span class="line">        f[u][<span class="number">0</span>] += f[j][<span class="number">1</span>];</span><br><span class="line">        f[u][<span class="number">1</span>] += min(f[j][<span class="number">0</span>], f[j][<span class="number">1</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>给定一个含有 n个结点的树，每个结点有一个 权值 wi表示在第 i个点上放置哨兵的花费，于每个 哨兵 来说，他可以 观察 当前结点，以及所有与当前点 相连 的 相邻结点。求解一种放置哨兵的 方案，使得每个 结点 都被 观察 到，且方案的 花费 最小</p>
+<ul>
+<li>父节点 放置 哨兵，所有子节点都 可放可不放 哨兵</li>
+<li>父节点 不放 哨兵，但是他至少有一个 子节点 放置哨兵，观察住了他</li>
+<li>父节点 不放 哨兵，但 父节点 的 父节点 放置哨兵观察，则 子节点 可放可不放 哨兵</li>
+</ul>
+<p>被父节点观察 （0）<br>被子节点观察 （1）<br>被自己来观察 （2）</p>
+<pre class="mermaid">stateDiagram-v2
+   direction LR
+   0:被父节点观察 （0）
+   1:被子节点观察 （1）
+   2:被自己来观察 （2）
+   
+   0-->2
+   1-->0
+   1-->2
+   2-->2
+   2-->1
+   2-->0</pre>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">f(i, <span class="number">0</span>)：第i号结点被他的 父结点 安排的守卫看住的方案数</span><br><span class="line">f(i, <span class="number">1</span>)：第i号结点被他的 子结点 安排的守卫看住的方案数</span><br><span class="line">f(i, <span class="number">2</span>)：第i号结点 自己 安排守卫看住的方案数</span><br><span class="line">    </span><br><span class="line">状态计算:(j是i的子结点)</span><br><span class="line"></span><br><span class="line">f(i, <span class="number">0</span>) = sum&#123;min(f(j,<span class="number">1</span>), f(j,<span class="number">2</span>))&#125;</span><br><span class="line">i是被他父结点看住的，那他的子结点要么自己看自己，要么被自己的子结点看住</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">f(i, <span class="number">1</span>) = min&#123;f(k,<span class="number">2</span>) + sum(min&#123;f(j,<span class="number">1</span>), f(j,<span class="number">2</span>)&#125;)&#125; <span class="comment">//j!=k</span></span><br><span class="line">i如果是被子结点看住的，则枚举他是被第k个子结点看住的所有方案</span><br><span class="line">    </span><br><span class="line">f(i, <span class="number">2</span>) = sum&#123;min(f(j,<span class="number">0</span>), f(j,<span class="number">1</span>), f(j,<span class="number">2</span>))&#125; + w(i)</span><br><span class="line">i是被自己看住的，那他的子结点可以被父结点看住，可以自己看自己，也可以被自己的子结点看住</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">dfs</span><span class="params">(<span class="type">int</span> u)</span>&#123;</span><br><span class="line">    <span class="comment">// 自己看自己</span></span><br><span class="line">    f[u][<span class="number">2</span>] = w[u];</span><br><span class="line">    <span class="type">int</span> <span class="variable">sum</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// 枚举子节点j</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> h[u] ; i != -<span class="number">1</span> ; i = ne[i])&#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> e[i];</span><br><span class="line">        dfs(j);</span><br><span class="line">        <span class="comment">//u是被父结点看住的，那他的子结点要么自己看自己，要么被自己的子结点看住</span></span><br><span class="line">        f[u][<span class="number">0</span>] += Math.min(f[j][<span class="number">1</span>],f[j][<span class="number">2</span>]); </span><br><span class="line">        <span class="comment">//sum记录为u的所有子节点 j 被j的子节点看住 或 被自己看住 的最小和</span></span><br><span class="line">        sum += Math.min(f[j][<span class="number">1</span>],f[j][<span class="number">2</span>]);</span><br><span class="line">        <span class="comment">//i是被自己看住的，那他的子结点可以被父结点看住，可以自己看自己，也可以被自己的子结点看住</span></span><br><span class="line">        f[u][<span class="number">2</span>] += Math.min(Math.min(f[j][<span class="number">0</span>],f[j][<span class="number">1</span>]),f[j][<span class="number">2</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">	</span><br><span class="line">    f[u][<span class="number">1</span>] = <span class="number">0x3f3f3f3f</span>;</span><br><span class="line">    <span class="comment">// 枚举所有可能的节点k，使k看住当前节点u</span></span><br><span class="line">    <span class="comment">// sum为所有子节点被自己或子节点的子节点看住的和，替换其中的k</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> h[u] ; i != -<span class="number">1</span> ; i = ne[i])&#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">k</span> <span class="operator">=</span> e[i];</span><br><span class="line">        f[u][<span class="number">1</span>] = Math.min(f[u][<span class="number">1</span>],f[k][<span class="number">2</span>] + (sum - Math.min(f[k][<span class="number">1</span>],f[k][<span class="number">2</span>])) );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+  
+  
+
+
+  </article>
+  
+<div class="related-wrap reveal" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">回顾上一篇</div><a href="/wiki/algorithm/dynamicProgramming/state_machine.html">状态机DP</a></div><div class="item" id="next"><div class="note">接下来阅读</div><a href="/wiki/algorithm/dynamicProgramming/digit.html">数位DP</a></div></section></div>
+
+  
+
+  <div class='related-wrap md-text reveal' id="comments">
+    <section class='header cmt-title cap theme'>
+      快来参与讨论吧
+    </section>
+    <section class='body cmt-body giscus'>
+      
+
+<svg class="loading" style="vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2709"><path d="M832 512c0-176-144-320-320-320V128c211.2 0 384 172.8 384 384h-64zM192 512c0 176 144 320 320 320v64C300.8 896 128 723.2 128 512h64z" p-id="2710"></path></svg>
+
+<div id="giscus" data-repo="JingleG/blog-comments" data-repo-id="R_kgDOJ_S-YA" data-category="Announcements" data-category-id="DIC_kwDOJ_S-YM4CYGuh" data-mapping="pathname" data-strict="0" data-reactions-enabled="0" data-emit-metadata="0" data-input-position="top" data-theme="preferred_color_scheme" data-lang="zh-CN" data-loading="lazy" crossorigin="anonymous"></div>
+
+    </section>
+  </div>
+
+
+
+
+      
+<footer class="page-footer reveal fs12"><hr><div class="sitemap"><div class="sitemap-group"><span class="fs14">博客</span><a href="/">近期</a><a href="/tags/">标签</a><a href="/archives/">归档</a></div><div class="sitemap-group"><span class="fs14">项目</span><a href="/wiki/">发现</a></div><div class="sitemap-group"><span class="fs14">社交</span><a href="/talk/">留言板</a></div><div class="sitemap-group"><span class="fs14">更多</span><a href="/about/">关于本站</a><a target="_blank" rel="noopener" href="https://github.com">GitHub</a></div></div><div class="text"><p>Powered by <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> &amp; <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar">Stellar</a> &amp; <a target="_blank" rel="noopener" href="https://giscus.app/">giscus</a> &amp; <a target="_blank" rel="noopener" href="https://github.com/">GitHub</a></p>
+</div></footer>
+
+      <div class='float-panel mobile-only blur' style='display:none'>
+  <button type='button' class='sidebar-toggle mobile' onclick='sidebar.toggle()'>
+    <svg class="icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="15301"><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 2.3 26.8 24.6 47.5 51.6 47.6h416.5v4z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15302"></path><path d="M566.407 808.3c26.9-0.1 49.3-20.8 51.6-47.6-1.9-27.7-23.9-49.7-51.6-51.6h-412.6c-28.2-1.4-52.6 19.5-55.5 47.6 1.9 27.7 23.9 49.7 51.6 51.6h416.5z m309.3-249.9c26.9-0.1 49.3-20.8 51.6-47.6-2.2-26.8-24.6-47.5-51.6-47.6h-721.9c-27.7-2.8-52.5 17.4-55.3 45.1-0.1 0.8-0.1 1.7-0.2 2.5 0.9 27.2 23.6 48.5 50.7 47.6H875.707z m-103.1-245.9c26.9-0.1 49.3-20.8 51.6-47.6-0.4-28.3-23.2-51.1-51.5-51.6h-618.9c-29.5-1.1-54.3 21.9-55.5 51.4v0.2c1.4 27.8 25.2 49.2 53 47.8 0.8 0 1.7-0.1 2.5-0.2h618.8z" p-id="15303"></path></svg>
+  </button>
+</div>
+
+    </div>
+  </div>
+  <div class='scripts'>
+    <script type="text/javascript">
+  const stellar = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    loadCSS: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    // 从 butterfly 和 volantis 获得灵感
+    loadScript: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = stellar.config.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    // https://github.com/jerryc127/hexo-theme-butterfly
+    jQuery: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        stellar.loadScript(stellar.plugins.jQuery).then(fn)
+      } else {
+        fn()
+      }
+    }
+  };
+  stellar.version = '1.19.0';
+  stellar.github = 'https://github.com/xaoxuu/hexo-theme-stellar/tree/1.19.0';
+  stellar.config = {
+    date_suffix: {
+      just: '刚刚',
+      min: '分钟前',
+      hour: '小时前',
+      day: '天前',
+      month: '个月前',
+    },
+    root : '/',
+  };
+
+  // required plugins (only load if needs)
+  stellar.plugins = {
+    jQuery: 'https://gcore.jsdelivr.net/npm/jquery@3.6.2/dist/jquery.min.js'
+  };
+
+  if ('local_search') {
+    stellar.search = {};
+    stellar.search.service = 'local_search';
+    if (stellar.search.service == 'local_search') {
+      let service_obj = Object.assign({}, {"field":"all","path":"/search.json","content":true,"sort":"-date"});
+      stellar.search[stellar.search.service] = service_obj;
+    }
+  }
+
+  // stellar js
+  stellar.plugins.stellar = Object.assign({"sites":"/js/plugins/sites.js","friends":"/js/plugins/friends.js","ghinfo":"/js/plugins/ghinfo.js","timeline":"/js/plugins/timeline.js","linkcard":"/js/plugins/linkcard.js","fcircle":"/js/plugins/fcircle.js","weibo":"/js/plugins/weibo.js"});
+
+  stellar.plugins.marked = Object.assign("https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js");
+  // optional plugins
+  if ('true' == 'true') {
+    stellar.plugins.lazyload = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/vanilla-lazyload@17.8.3/dist/lazyload.min.js","transition":"blur"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.swiper = Object.assign({"enable":true,"css":"https://unpkg.com/swiper@8.4.5/swiper-bundle.min.css","js":"https://unpkg.com/swiper@8.4.5/swiper-bundle.min.js"});
+  }
+  if ('' == 'true') {
+    stellar.plugins.scrollreveal = Object.assign({"enable":null,"js":"https://gcore.jsdelivr.net/npm/scrollreveal@4.0.9/dist/scrollreveal.min.js","distance":"8px","duration":500,"interval":100,"scale":1});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.preload = Object.assign({"enable":true,"service":"flying_pages","instant_page":"https://gcore.jsdelivr.net/gh/volantis-x/cdn-volantis@4.1.2/js/instant_page.js","flying_pages":"https://gcore.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.fancybox = Object.assign({"enable":true,"js":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js","css":"https://gcore.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css","selector":".swiper-slide img"});
+  }
+  if ('false' == 'true') {
+    stellar.plugins.heti = Object.assign({"enable":false,"css":"https://unpkg.com/heti@0.9.2/umd/heti.min.css","js":"https://unpkg.com/heti@0.9.2/umd/heti-addon.min.js"});
+  }
+  if ('true' == 'true') {
+    stellar.plugins.copycode = Object.assign({"enable":true,"js":"/js/plugins/copycode.js","default_text":"Copy","success_text":"Copied"});
+  }
+</script>
+
+<!-- required -->
+
+  
+<script src="/js/main.js" async></script>
+
+
+
+<!-- optional -->
+
+  <script>
+  function loadJS() {
+    const els = document.querySelectorAll("#comments #giscus");
+    if (els.length === 0) return;
+    els.forEach((el, i) => {
+      try {
+        el.innerHTML = '';
+      } catch (error) {
+        console.log(error);
+      }
+      var script = document.createElement('script');
+      script.src = 'https://giscus.app/client.js';
+      script.async = true;
+      for (let key of Object.keys(el.attributes)) {
+        let attr = el.attributes[key];
+        if (['class', 'id'].includes(attr.name) === false) {
+          script.setAttribute(attr.name, attr.value);
+        }
+      }
+      el.appendChild(script);
+    });
+  }
+  window.addEventListener('DOMContentLoaded', (event) => {
+    loadJS();
+  });
+</script>
+
+
+
+
+<!-- inject -->
+
+
+  </div>
+</body>
+</html>
