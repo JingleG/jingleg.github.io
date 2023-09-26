@@ -23,17 +23,19 @@
   <title>6.830 lab：lab3 - Jingle</title>
 
   
-    <meta name="description" content="lab3content">
+    <meta name="description" content="lab 3 的 instruction 看上去十分的唬人，核心搞清楚这个 Query Optimization 的依据什么来做的优化，具体实现过程可以参考 Selinger。 用 lab 中给的例子看：p&#x3D;t1 join t2 join ... tn 那么对于这个多表 join 操作，存在多种 join plan，如：(A join B) join C,(A join C) join B 以及 (">
 <meta property="og:type" content="website">
 <meta property="og:title" content="lab3">
 <meta property="og:url" content="https://jingleg.github.io/wiki/database_lab/lab3/lab3.html">
 <meta property="og:site_name" content="Jingle">
-<meta property="og:description" content="lab3content">
+<meta property="og:description" content="lab 3 的 instruction 看上去十分的唬人，核心搞清楚这个 Query Optimization 的依据什么来做的优化，具体实现过程可以参考 Selinger。 用 lab 中给的例子看：p&#x3D;t1 join t2 join ... tn 那么对于这个多表 join 操作，存在多种 join plan，如：(A join B) join C,(A join C) join B 以及 (">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2023-07-30T19:49:00.075Z">
-<meta property="article:modified_time" content="2023-07-30T19:49:00.075Z">
+<meta property="og:image" content="https://jingleg.github.io/wiki/database_lab/lab3/lab3.png">
+<meta property="article:published_time" content="2023-09-17T01:12:24.303Z">
+<meta property="article:modified_time" content="2023-09-17T01:12:24.303Z">
 <meta property="article:author" content="Jingle">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://jingleg.github.io/wiki/database_lab/lab3/lab3.png">
   
   
   
@@ -75,9 +77,9 @@
 
 <div class="widgets"><widget class="widget-wrapper logo-wrap wiki"><div class="widget-body"><a style="filter: grayscale(100%)" class="wiki-home cap" href="/wiki"><svg aria-hidden="true" viewBox="0 0 16 16" width="1rem" height="1rem" fill="currentColor"><path fill-rule="evenodd" d="M7.78 12.53a.75.75 0 01-1.06 0L2.47 8.28a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 1.06L4.81 7h7.44a.75.75 0 010 1.5H4.81l2.97 2.97a.75.75 0 010 1.06z"></path></svg>所有项目</a><a class="title" href="/wiki/database_lab/index.html"><div class="main" ff="title">6.830 lab</div></a></div></widget>
 
-<widget class="widget-wrapper toc multi" id="data-toc"><div class="widget-header cap dis-select"><span class="name">lab3</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/database_lab/index.html#start"><span class="toc-text">Intro</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/database_lab/lab1/lab1.html#default"><span class="toc-text">lab1</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/database_lab/lab2/lab2.html#default"><span class="toc-text">lab2</span></a></div><a class="anchor" id="default"></a><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/database_lab/lab3/lab3.html#default"><span class="toc-text">lab3</span></a><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#lab3"><span class="toc-text">lab3</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/database_lab/lab4/lab4.html#default"><span class="toc-text">lab4</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/database_lab/lab5/lab5.html#default"><span class="toc-text">lab5</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/database_lab/lab6/lab6.html#default"><span class="toc-text">lab6</span></a></div></div></widget>
+<widget class="widget-wrapper toc multi" id="data-toc"><div class="widget-header cap dis-select"><span class="name">lab3</span></div><div class="widget-body fs14"><div class="doc-tree"><a class="doc-tree-link" href="/wiki/database_lab/index.html#start"><span class="toc-text">Intro</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/database_lab/lab1/lab1.html#default"><span class="toc-text">lab1</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/database_lab/lab2/lab2.html#default"><span class="toc-text">lab2</span></a></div><a class="anchor" id="default"></a><div class="doc-tree active"><a class="doc-tree-link active" href="/wiki/database_lab/lab3/lab3.html#default"><span class="toc-text">lab3</span></a><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#IntHistogram"><span class="toc-text">IntHistogram</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TableStats"><span class="toc-text">TableStats</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Join-Cost-Estimation"><span class="toc-text">Join Cost Estimation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Join-Ordering"><span class="toc-text">Join Ordering</span></a></li></ol></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/database_lab/lab4/lab4.html#default"><span class="toc-text">lab4</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/database_lab/lab5/lab5.html#default"><span class="toc-text">lab5</span></a></div><div class="doc-tree"><a class="doc-tree-link" href="/wiki/database_lab/lab6/lab6.html#default"><span class="toc-text">lab6</span></a></div></div></widget>
 
-<widget class="widget-wrapper recent"><div class="widget-header cap theme dis-select"><span class="name">最近更新</span></div><div class="widget-body related-posts fs14"><a class="item title" href="/wiki/database_lab/lab1/lab1.html"><span class="title"><strong>6.830 lab</strong><span class="dot"></span>lab1</span></a><a class="item title" href="/wiki/database_lab/lab2/lab2.html"><span class="title"><strong>6.830 lab</strong><span class="dot"></span>lab2</span></a><a class="item title" href="/wiki/database_lab/index.html"><span class="title"><strong>6.830 lab</strong><span class="dot"></span>Intro</span></a><a class="item title" href="/wiki/env_setup/git.html"><span class="title"><strong>环境配置</strong><span class="dot"></span>Git</span></a><a class="item title" href="/wiki/algorithm/basicAlgo/binary_lifting.html"><span class="title"><strong>算法 in Java</strong><span class="dot"></span>Binary Lifting</span></a></div></widget>
+<widget class="widget-wrapper recent"><div class="widget-header cap theme dis-select"><span class="name">最近更新</span></div><div class="widget-body related-posts fs14"><a class="item title" href="/wiki/database_lab/lab3/lab3.html"><span class="title"><strong>6.830 lab</strong><span class="dot"></span>lab3</span></a><a class="item title" href="/wiki/algorithm/math/divisor.html"><span class="title"><strong>算法 in Java</strong><span class="dot"></span>Divisor 约数</span></a><a class="item title" href="/wiki/algorithm/math/matrix.html"><span class="title"><strong>算法 in Java</strong><span class="dot"></span>Matrix 矩阵</span></a><a class="item title" href="/wiki/database_lab/lab1/lab1.html"><span class="title"><strong>6.830 lab</strong><span class="dot"></span>lab1</span></a><a class="item title" href="/wiki/database_lab/lab2/lab2.html"><span class="title"><strong>6.830 lab</strong><span class="dot"></span>lab2</span></a></div></widget>
 </div>
 
 
@@ -91,12 +93,20 @@
   
   
   
-<div class="bread-nav fs12"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/database_lab/index.html">6.830 lab</a></div><div id="post-meta">更新于&nbsp;<time datetime="2023-07-30T19:49:00.075Z">2023-07-30</time></div></div>
+<div class="bread-nav fs12"><div id="breadcrumb"><a class="cap breadcrumb" id="home" href="/">主页</a><span class="sep"></span><a class="cap breadcrumb" id="menu" href="/wiki/">项目</a><span class="sep"></span><a class="cap breadcrumb" id="proj" href="/wiki/database_lab/index.html">6.830 lab</a></div><div id="post-meta">更新于&nbsp;<time datetime="2023-09-17T01:12:24.303Z">2023-09-16</time></div></div>
 
   <article class='md-text content wiki'>
   <h1 class="article-title" ><span>lab3</span></h1>
-  <h1 id="lab3"><a href="#lab3" class="headerlink" title="lab3"></a>lab3</h1><p>content</p>
+  <p>lab 3 的 instruction 看上去十分的唬人，核心搞清楚这个 Query Optimization 的依据什么来做的优化，具体实现过程可以参考 <a class="tag-plugin tag" color="yellow" href="Optimizer https://ocw.mit.edu/courses/6-830-database-systems-fall-2010/7b28a2ebf609323f8ac6783cae73beb5_MIT6_830F10_lec09_selinger.pdf">Selinger</a>。</p>
+<p>用 lab 中给的例子看：<code>p=t1 join t2 join ... tn</code> 那么对于这个多表 join 操作，存在多种 join plan，如：(A join B) join C,(A join C) join B 以及 (B join C) join A，这里假设 ABC 三表间任意两表均可 join。对于 (A join B) join C 的代价为 <code>scancost(t1) + scancost(t2) + joincost(t1 join t2) + scancost(t3) + joincost((t1 join t2) join t3)</code> 其中 scancost 是全表扫描的时间，joincost 是连接两个表产生中间表的耗时。由于 disk I&#x2F;O 与 cpu 运算间存在差距，需要使用 <code>SCALING_FACTOR</code> 来进行平衡。</p>
+<p>instruction 还给出了使用 nest loop join 的 joincost 的具体计算方式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">joincost(t1 join t2) = scancost(t1) + ntups(t1) x scancost(t2) //IO cost </span><br><span class="line">                       + ntups(t1) x ntups(t2)  //CPU cost</span><br></pre></td></tr></table></figure>
 
+<p>当然，这里实现仅仅是通过 扫描行数以及产生新的中间表行数 进行代价计算，可以说是最简单不过的优化方式。实际还可以考虑诸如 join 的方式 (BNLJ, Hash Join)，predicate push down，中间表的额外 I&#x2F;O 等等。</p>
+<details class="tag-plugin folding" color="yellow"><summary><span>曾经的考试题，堪称折磨</span></summary><div class="body"><div class="tag-plugin image"><div class="image-bg"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="lab3.png" fancybox="true"/></div></div></div></details>
+
+<h2 id="IntHistogram"><a href="#IntHistogram" class="headerlink" title="IntHistogram"></a>IntHistogram</h2><p>实现一个 <a class="tag-plugin tag" color="yellow">IntHistogram</a> 来统计某个 predicate 对表的 selectivity。这里的 selectivity 是对表中不同 key 的估计值，选择性越低则表示表中可能满足操作符的行数越少，join 后中间表越小。实现基本只要遵循 instruction 即可，注意 有负数&#x2F;会传入<code>[min,max]</code>之外的值。</p>
+<h2 id="TableStats"><a href="#TableStats" class="headerlink" title="TableStats"></a>TableStats</h2><h2 id="Join-Cost-Estimation"><a href="#Join-Cost-Estimation" class="headerlink" title="Join Cost Estimation"></a>Join Cost Estimation</h2><h2 id="Join-Ordering"><a href="#Join-Ordering" class="headerlink" title="Join Ordering"></a>Join Ordering</h2>
   
   
 
